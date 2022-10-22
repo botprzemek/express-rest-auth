@@ -4,8 +4,8 @@ if (process.env.NODE_ENV !== 'production'){
 const express = require('express'),
       passport = require('passport'),
       { createHash } = require('./modules/hashing'),
+      { addUser } = require('./modules/user'),
       { initialize } = require('./modules/passport'),
-      database = require('./modules/database'),
       session = require('express-session'),
       flash = require('express-flash'),
       app = express(),
@@ -50,7 +50,7 @@ app.get('/register', (req, res)=>{
 app.post('/api/register', (req, res)=>{
     try {
         const user = createHash(req.body.email, req.body.login, req.body.password);
-        users.push(user);
+        addUser(user);
         res.redirect('../login');
     }
     catch {
@@ -67,11 +67,3 @@ app.get('/api/users', (req, res)=>{
 });
 
 app.listen(port);
-
-const getter = async () => {
-    const res = await database.sendQuery('SELECT * FROM users');
-    console.table(res);
-    return res;
-}
-
-getter();
