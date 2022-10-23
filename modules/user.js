@@ -3,7 +3,9 @@ if (process.env.NODE_ENV !== 'production'){
 }
 const database = require('../modules/database'),
       crypto = require('crypto'),
-      { verify } = require('jsonwebtoken'),
+      { sign, verify } = require('jsonwebtoken'),
+      cookieParser = require('cookie-parser'),
+      age = 15000,
       regex = {
         login    : /^[a-zA-Z0-9_@]{8,32}$/,
         email    : /([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\@([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\.(com|net)/,
@@ -41,7 +43,7 @@ async function getUsers(arg=null){
 }
 
 function authUser(req, res, next){
-    const token =  req.headers['authorization']?.split(' ')[1];
+    const token = req.cookies['token'];
     if (token == null) return res.redirect('error');
     verify(token, process.env.WEB_TOKEN, (error, udata) =>{
         if (error) return res.redirect('error');
@@ -62,6 +64,21 @@ async function getToken(arg=null){
     return res.data;
 }
 
+async function checkToken(req, res){
+    const refreshToken = req.cookies['refreshToken'];
+    if (refreshToken === undefined) return;
+    const token = await getToken(refreshToken);
+    if (token === false) res.redirect('error');
+    if (token === refreshToken) {
+        verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
+            if (error) return res.redirect('error');
+            req.udata = udata;
+            const newWebToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15s' });
+            res.cookie('token', newWebToken, { maxAge: age, httpOnly: true });
+        });
+    }
+}
+
 async function removeToken(arg=null){
     if (arg == null) return false;
     query = `DELETE FROM login.tokens WHERE tokens.data='${arg}'`;
@@ -76,5 +93,6 @@ module.exports = {
     authUser,
     addToken,
     getToken,
+    checkToken,
     removeToken,
 }
