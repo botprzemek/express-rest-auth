@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production'){
 const express = require('express'),
       { createHash } = require('./modules/hashing'),
       { sign, verify } = require('jsonwebtoken'),
-      { addUser, verifyUser, authUser, getUsers, getToken, addToken } = require('./modules/user'),
+      { addUser, verifyUser, authUser, getUsers, getToken, addToken, removeToken } = require('./modules/user'),
       app = express(),
       port = process.env.NODE_PORT;
 
@@ -99,6 +99,12 @@ app.get('/api/users/:id', async (req, res)=>{
             data: get,
         }
     );
+});
+
+app.delete('/logout', async (req, res)=>{
+    const refreshToken = req.body.refresh;
+    if (removeToken(refreshToken)) res.redirect('login');
+    else res.redirect('error');
 });
 
 app.get('/error', (req, res)=>{

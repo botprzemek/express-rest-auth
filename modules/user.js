@@ -62,11 +62,11 @@ async function getToken(arg=null){
     return res.data;
 }
 
-async function getToken(arg=null){
+async function removeToken(arg=null){
     if (arg == null) return false;
-    query = `DELETE FROM tokens.data FROM login.tokens WHERE tokens.data='${arg}'`;
-    const [res, ] = await database.sendQuery(query);
-    return res.data;
+    query = `DELETE FROM login.tokens WHERE tokens.data='${arg}'`;
+    if (await database.sendQuery(query)) return true;
+    
 }
 
 module.exports = {
@@ -76,4 +76,5 @@ module.exports = {
     authUser,
     addToken,
     getToken,
+    removeToken,
 }
