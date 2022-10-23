@@ -3,8 +3,8 @@ if (process.env.NODE_ENV !== 'production'){
 }
 const express = require('express'),
       { createHash } = require('./modules/hashing'),
-      { sign } = require('jsonwebtoken'),
-      { addUser, verifyUser, authUser, getUsers, getToken } = require('./modules/user'),
+      { sign, verify } = require('jsonwebtoken'),
+      { addUser, verifyUser, authUser, getUsers, getToken, addToken } = require('./modules/user'),
       app = express(),
       port = process.env.NODE_PORT;
 
@@ -21,8 +21,9 @@ app.post('/api/login', async (req, res)=>{
         const user = { email: req.body.email, password: req.body.password },
               status = await verifyUser(user);
         if (status == true) {
-            const webToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '30m' });
+            const webToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15s' });
             const refreshToken = sign({ result : req.body.email }, process.env.REFRESH_TOKEN);
+            addToken(refreshToken);
             res.json(
                 {
                     success: 1,
@@ -31,7 +32,6 @@ app.post('/api/login', async (req, res)=>{
                     refresh: refreshToken,
                 }
             );
-            res.redirect('../panel');
         }
         else res.redirect('../login');
     }
@@ -41,9 +41,23 @@ app.post('/api/login', async (req, res)=>{
 });
 
 app.get('/api/token', async (req, res)=>{
-    const refreshToken = req.body.token,
-          tokens = await getToken();
-    if (tokens.includes(refreshToken));
+    const refreshToken = req.body.refresh;
+    if (refreshToken === undefined) return;
+    const token = await getToken(refreshToken);
+    if (token === false) res.redirect('../error');
+    if (token === refreshToken) {
+        verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
+            if (error) return res.redirect('error');
+            req.udata = udata;
+            const newWebToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15s' });
+            res.json(
+                {
+                    success: 1,
+                    message: `Successfully refreshed token.`,
+                    token: newWebToken,
+                });
+        });
+    }
 });
 
 app.get('/register', (req, res)=>{

@@ -41,7 +41,6 @@ async function getUsers(arg=null){
 }
 
 function authUser(req, res, next){
-    console.table(req.headers);
     const token =  req.headers['authorization']?.split(' ')[1];
     if (token == null) return res.redirect('error');
     verify(token, process.env.WEB_TOKEN, (error, udata) =>{
@@ -51,15 +50,30 @@ function authUser(req, res, next){
     });
 }
 
-// async function getUsers(arg=null){
-//         //query = `SELECT * FROM login.users`;
-//         //return [res, ] = await database.sendQuery(query);
-//         return [];
-// }
+async function addToken(arg=null){
+    query = `INSERT INTO login.tokens (data) VALUES ('${arg}')`;
+    await database.sendQuery(query);
+}
+
+async function getToken(arg=null){
+    if (arg == null) return false;
+    query = `SELECT tokens.data FROM login.tokens WHERE tokens.data='${arg}'`;
+    const [res, ] = await database.sendQuery(query);
+    return res.data;
+}
+
+async function getToken(arg=null){
+    if (arg == null) return false;
+    query = `DELETE FROM tokens.data FROM login.tokens WHERE tokens.data='${arg}'`;
+    const [res, ] = await database.sendQuery(query);
+    return res.data;
+}
 
 module.exports = {
     addUser,
+    getUsers,
     verifyUser,
     authUser,
-    getUsers,
+    addToken,
+    getToken,
 }
