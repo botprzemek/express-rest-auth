@@ -1,6 +1,9 @@
+if (process.env.NODE_ENV !== 'production'){
+    require('dotenv').config();
+}
 const database = require('../modules/database'),
-      { scryptSync, timingSafeEqual } = require('crypto'),
-      { sign } = require('jsonwebtoken'),
+      crypto = require('crypto'),
+      { verify } = require('jsonwebtoken'),
       regex = {
         login    : /^[a-zA-Z0-9_@]{8,32}$/,
         email    : /([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\@([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\.(com|net)/,
@@ -18,9 +21,9 @@ async function verifyUser(user){
     const query = `SELECT users.password FROM login.users WHERE users.email='${user.email}'`,
           [res, ] = await database.sendQuery(query),
           [salt, key] = res.password.split(':'),
-          hashedBuffer = scryptSync(user.password, salt, 64),
+          hashedBuffer = crypto.scryptSync(user.password, salt, 64),
           keyBuffer = Buffer.from(key, 'hex'),
-          match = timingSafeEqual(hashedBuffer, keyBuffer);
+          match = crypto.timingSafeEqual(hashedBuffer, keyBuffer);
     return match;
 }
 
@@ -37,8 +40,26 @@ async function getUsers(arg=null){
     return [res, ] = await database.sendQuery(query);
 }
 
+function authUser(req, res, next){
+    console.table(req.headers);
+    const token =  req.headers['authorization']?.split(' ')[1];
+    if (token == null) return res.redirect('error');
+    verify(token, process.env.WEB_TOKEN, (error, udata) =>{
+        if (error) return res.redirect('error');
+        req.udata = udata;
+        next();
+    });
+}
+
+// async function getUsers(arg=null){
+//         //query = `SELECT * FROM login.users`;
+//         //return [res, ] = await database.sendQuery(query);
+//         return [];
+// }
+
 module.exports = {
     addUser,
     verifyUser,
+    authUser,
     getUsers,
 }
