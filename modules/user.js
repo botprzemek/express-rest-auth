@@ -52,18 +52,6 @@ function authUser(req, res, next){
     });
 }
 
-async function addToken(arg=null){
-    query = `INSERT INTO login.tokens (data) VALUES ('${arg}')`;
-    await database.sendQuery(query);
-}
-
-async function getToken(arg=null){
-    if (arg == null) return false;
-    query = `SELECT tokens.data FROM login.tokens WHERE tokens.data='${arg}'`;
-    const [res, ] = await database.sendQuery(query);
-    return res.data;
-}
-
 async function checkToken(req, res){
     const refreshToken = req.cookies['refreshToken'];
     if (refreshToken === undefined) return;
@@ -79,20 +67,10 @@ async function checkToken(req, res){
     }
 }
 
-async function removeToken(arg=null){
-    if (arg == null) return false;
-    query = `DELETE FROM login.tokens WHERE tokens.data='${arg}'`;
-    if (await database.sendQuery(query)) return true;
-    
-}
-
 module.exports = {
     addUser,
     getUsers,
     verifyUser,
     authUser,
-    addToken,
-    getToken,
     checkToken,
-    removeToken,
 }
