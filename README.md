@@ -2,6 +2,6 @@
 Node.js web authentication project
 
 - Express,
-- JWT,
+- JWT in cookies,
 - Hashing,
-- MYSWL -> Cassandra,
+- MYSQL -> Cassandra,
