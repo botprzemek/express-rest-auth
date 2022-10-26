@@ -44,9 +44,11 @@ async function getUsers(arg=null){
 
 function authUser(req, res, next){
     const token = req.cookies['token'];
-    if (token == null) return res.redirect('error');
+    const refreshToken = req.cookies['refreshToken'];
+    if (refreshToken != null && token == null) return res.redirect('api/token');
+    else if (token == null) return res.redirect('login');
     verify(token, process.env.WEB_TOKEN, (error, udata) =>{
-        if (error) return res.redirect('error');
+        if (error) return res.redirect('login');
         req.udata = udata;
         next();
     });

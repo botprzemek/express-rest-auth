@@ -8,7 +8,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       app = express(),
       port = process.env.NODE_PORT,
-      age = 1000*3600*24;
+      age = 1000*3600*24*7;
 
 app.set('view-engine', 'ejs');
 app.use(express.json({ limit:'1mb' }));
@@ -26,7 +26,7 @@ app.post('/api/login', async (req, res, next)=>{
         if (status == true) {
             const webToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15m' });
             const refreshToken = sign({ result : req.body.email }, process.env.REFRESH_TOKEN);
-            res.cookie('token', webToken, { maxAge: 15000, secure: true, httpOnly: true, });
+            res.cookie('token', webToken, { maxAge: 15000, httpOnly: true });
             res.cookie('refreshToken', refreshToken, { maxAge: age, httpOnly: true });
             res.cookie('user', req.body.email, { maxAge: age, httpOnly: true });
             res.redirect('./../panel');
@@ -40,12 +40,12 @@ app.post('/api/login', async (req, res, next)=>{
 
 app.get('/api/token', async (req, res)=>{
     const refreshToken = req.cookies['refreshToken'];
-    if (refreshToken === null) res.redirect('./../error');
+    if (refreshToken === null) res.redirect('./../login');
     verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
-        if (error) return res.redirect('./../error');
+        if (error) return res.redirect('./../login');
         req.udata = udata;
-        const newWebToken = sign({ result : req.cookies['email'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
-        res.cookie('token', newWebToken, { maxAge: 15000, secure: true, httpOnly: true, });
+        const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
+        res.cookie('token', newWebToken, { maxAge: 15000, httpOnly: true });
         res.redirect('./../panel');
     });
 });
@@ -79,10 +79,11 @@ app.get('/api/users/:id', async (req, res)=>{
     else res.json(get);
 });
 
-app.delete('/logout', async (req, res)=>{
-    const refreshToken = req.body.refresh;
-    /*if ()*/ res.redirect('login');
-    //else res.redirect('error');
+app.get('/logout', async (req, res)=>{
+    res.cookie('token', '', { maxAge: -90000, httpOnly: true });
+    res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
+    res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+    res.redirect('login');
 });
 
 app.get('/error', (req, res)=>{
