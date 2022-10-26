@@ -26,7 +26,7 @@ app.post('/api/login', async (req, res, next)=>{
         if (status == true) {
             const webToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15m' });
             const refreshToken = sign({ result : req.body.email }, process.env.REFRESH_TOKEN);
-            res.cookie('token', webToken, { maxAge: 15000, httpOnly: true });
+            res.cookie('token', webToken, { maxAge: 150000, httpOnly: true });
             res.cookie('refreshToken', refreshToken, { maxAge: age, httpOnly: true });
             res.cookie('user', req.body.email, { maxAge: age, httpOnly: true });
             res.redirect('./../panel');
@@ -45,7 +45,7 @@ app.get('/api/token', async (req, res)=>{
         if (error) return res.redirect('./../login');
         req.udata = udata;
         const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
-        res.cookie('token', newWebToken, { maxAge: 15000, httpOnly: true });
+        res.cookie('token', newWebToken, { maxAge: 150000, httpOnly: true });
         res.redirect('./../panel');
     });
 });
