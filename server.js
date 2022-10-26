@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production'){
 const express = require('express'),
       { createHash } = require('./modules/hashing'),
       { sign, verify } = require('jsonwebtoken'),
-      { addUser, verifyUser, authUser, getUsers, checkToken } = require('./modules/user'),
+      { addUser, verifyUser, authUser, getUsers } = require('./modules/user'),
       cookieParser = require('cookie-parser'),
       app = express(),
       port = process.env.NODE_PORT,
