@@ -4,8 +4,7 @@ if (process.env.NODE_ENV !== 'production'){
 const database = require('../modules/database'),
       crypto = require('crypto'),
       { sign, verify } = require('jsonwebtoken'),
-      cookieParser = require('cookie-parser'),
-      age = 15000,
+      age = 150000,
       regex = {
         login    : /^[a-zA-Z0-9_@]{8,32}$/,
         email    : /([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\@([A-Z]|[a-z]|[^<>()\[\]\\\/.,;:\s@"]){4,}\.(com|net)/,
@@ -44,24 +43,14 @@ async function getUsers(arg=null){
 
 function authUser(req, res, next){
     const token = req.cookies['token'];
-    if (token == null) return res.redirect('error');
+    const refreshToken = req.cookies['refreshToken'];
+    if (refreshToken != null && token == null) return res.redirect('api/token');
+    else if (token == null) return res.redirect('login');
     verify(token, process.env.WEB_TOKEN, (error, udata) =>{
-        if (error) return res.redirect('error');
+        if (error) return res.redirect('login');
         req.udata = udata;
         next();
     });
-}
-
-async function addToken(arg=null){
-    query = `INSERT INTO login.tokens (data) VALUES ('${arg}')`;
-    await database.sendQuery(query);
-}
-
-async function getToken(arg=null){
-    if (arg == null) return false;
-    query = `SELECT tokens.data FROM login.tokens WHERE tokens.data='${arg}'`;
-    const [res, ] = await database.sendQuery(query);
-    return res.data;
 }
 
 async function checkToken(req, res){
@@ -73,17 +62,10 @@ async function checkToken(req, res){
         verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
             if (error) return res.redirect('error');
             req.udata = udata;
-            const newWebToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15s' });
+            const newWebToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15m' });
             res.cookie('token', newWebToken, { maxAge: age, httpOnly: true });
         });
     }
-}
-
-async function removeToken(arg=null){
-    if (arg == null) return false;
-    query = `DELETE FROM login.tokens WHERE tokens.data='${arg}'`;
-    if (await database.sendQuery(query)) return true;
-    
 }
 
 module.exports = {
@@ -91,8 +73,5 @@ module.exports = {
     getUsers,
     verifyUser,
     authUser,
-    addToken,
-    getToken,
     checkToken,
-    removeToken,
 }

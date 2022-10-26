@@ -11,6 +11,4 @@ function createHash(email, login, password, group=2){
     }
 }
 
-module.exports = {
-    createHash,
-}
+module.exports = { createHash }
