@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config();
 }
+
 const express = require('express'),
       { createHash } = require('./modules/hashing'),
       { sign, verify } = require('jsonwebtoken'),
@@ -11,7 +12,7 @@ const express = require('express'),
       age = 1000*3600*24*7;
 
 app.set('view-engine', 'ejs');
-app.use(express.json({ limit:'1mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -29,7 +30,7 @@ app.post('/api/login', async (req, res, next)=>{
             res.cookie('token', webToken, { maxAge: 150000, httpOnly: true });
             res.cookie('refreshToken', refreshToken, { maxAge: age, httpOnly: true });
             res.cookie('user', req.body.email, { maxAge: age, httpOnly: true });
-            res.redirect('./../panel');
+            res.redirect('./../');
         }
         else res.redirect('./../login');
     }
@@ -46,7 +47,7 @@ app.get('/api/token', async (req, res)=>{
         req.udata = udata;
         const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
         res.cookie('token', newWebToken, { maxAge: 150000, httpOnly: true });
-        res.redirect('./../panel');
+        res.redirect('./../');
     });
 });
 
@@ -65,7 +66,7 @@ app.post('/api/register', (req, res)=>{
     }
 });
 
-app.get('/panel', authUser, (req, res)=>{
+app.get('/', authUser, (req, res)=>{
     res.render('panel.ejs');
 });
 
