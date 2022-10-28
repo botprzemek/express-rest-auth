@@ -12,4 +12,4 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Apps Docker image 
       run: |
-        docker build -t botprzemek/express-rest-auth .
+        docker build -t botprzemek/express-rest-auth ./
