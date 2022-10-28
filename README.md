@@ -5,3 +5,6 @@ Node.js web authentication project
 - JWT in cookies,
 - Hashing,
 - MYSQL -> Cassandra,
+
+:troll-face:
+:trollface:
