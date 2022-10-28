@@ -1,10 +1,9 @@
-# express-rest-auth
-Node.js web authentication project
+# Authentication and Authorization Backend
 
-- Express,
-- JWT in cookies,
-- Hashing,
-- MYSQL -> Cassandra,
+Dockerized NODE.JS App containing full authorization (Registration, Login and Validation), hand-written password hashing when creating users, form validation with REGEX, authentication with JWT stored inside client's cookies, that refreshes every 15 minutes (with the Refresh Token).
 
-:troll-face:
+Dependencies used in project:
+- Express.JS :heavy_check_mark:,
+- JSONWebTokens stored in cookies :heavy_check_mark:,
+- MYSQL2 :heavy_check_mark: (Moving to Cassandra),
 :trollface:
