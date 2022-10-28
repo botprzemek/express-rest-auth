@@ -10,6 +10,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Apps Docker image 
+    - name: Build the Docker image
+      working-directory: express-rest-auth
       run: |
-        docker build -t botprzemek/express-rest-auth ./
+        docker build . -t botprzemek/express-rest-auth
+    - name: Push the Docker image
+      working-directory: express-rest-auth
+      run: |
+        docker push botprzemek/express-rest-auth
