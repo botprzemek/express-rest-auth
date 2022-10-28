@@ -1,7 +1,8 @@
 if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config();
 }
-const database = require('../modules/database'),
+
+const database = require('./database'),
       crypto = require('crypto'),
       { sign, verify } = require('jsonwebtoken'),
       age = 150000,
