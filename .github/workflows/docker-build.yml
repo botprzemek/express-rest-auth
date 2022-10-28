@@ -1,0 +1,12 @@
+name: Docker Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: action/checkout@v2
+    - name: docker build app
+      run: |
+        docker build -t botprzemek/express-rest-auth .
