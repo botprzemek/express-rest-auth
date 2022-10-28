@@ -18,11 +18,7 @@ async function sendQuery(query){
         connection.end();
         return results;
     }
-    catch (error) {
-        console.log(`[getUsers] There was an error with the query: \n  ${error}`);
-    }
+    catch (error) { console.log(`[ DATABASE ] There was an error with the query: \n  ${error}`) }
 }
 
-module.exports = {
-    sendQuery
-}
+module.exports = { sendQuery }

@@ -1,68 +1,68 @@
 if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config();
 }
+
 const express = require('express'),
       { createHash } = require('./modules/hashing'),
       { sign, verify } = require('jsonwebtoken'),
-      { addUser, verifyUser, authUser, getUsers, getToken, addToken, removeToken, checkToken } = require('./modules/user'),
+      { addUser, verifyUser, authUser, getUsers, logUser } = require('./modules/user'),
       cookieParser = require('cookie-parser'),
       app = express(),
       port = process.env.NODE_PORT,
-      age = 15000;
+      age = 1000*3600*24*7;
 
 app.set('view-engine', 'ejs');
-app.use(express.json({ limit:'1mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get('/login', (req, res)=>{
+app.get('/login', authUser, (req, res)=>{
     res.render('login.ejs');
 });
 
-app.post('/api/login', async (req, res, next)=>{
+app.post('/api/login', async (req, res)=>{
     try {
-        const user = { email: req.body.email, password: req.body.password },
+        const user = { login: req.body.login, password: req.body.password },
               status = await verifyUser(user);
         if (status == true) {
-            const webToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15s' });
-            const refreshToken = sign({ result : req.body.email }, process.env.REFRESH_TOKEN);
-            addToken(refreshToken);
-            res.cookie('token', webToken, { maxAge: 36000, httpOnly: true, });
+            await logUser({
+                login: user.login,
+                data: `User ${user.login} logged successfully.`,
+            });
+            const webToken = sign({ result : req.body.login }, process.env.WEB_TOKEN, { expiresIn: '15m' });
+            const refreshToken = sign({ result : req.body.login }, process.env.REFRESH_TOKEN, { expiresIn: '7d' });
+            res.cookie('token', webToken, { maxAge: 150000, httpOnly: true });
             res.cookie('refreshToken', refreshToken, { maxAge: age, httpOnly: true });
-            next();
+            res.cookie('user', req.body.login, { maxAge: age, httpOnly: true });
+            res.redirect('./../panel');
         }
-        else res.redirect('../login');
+        else {
+            await logUser({
+                login: user.login,
+                data: `User ${user.login} login failed.`,
+            });
+            res.redirect('./../login');
+        }
     }
     catch (error) {
         console.log(error);
     }
 });
 
-app.post('/api/login', async (req, res)=>{
-    res.redirect('../panel');
-});
-
 app.get('/api/token', async (req, res)=>{
-    const refreshToken = req.body.refresh;
-    if (refreshToken === undefined) return;
-    const token = await getToken(refreshToken);
-    if (token === false) res.redirect('../error');
-    if (token === refreshToken) {
-        verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
-            if (error) return res.redirect('error');
-            req.udata = udata;
-            const newWebToken = sign({ result : req.body.email }, process.env.WEB_TOKEN, { expiresIn: '15m' });
-            res.json(
-                {
-                    success: 1,
-                    message: `Successfully refreshed token.`,
-                    token: newWebToken,
-                });
-        });
-    }
+    const refreshToken = req.cookies['refreshToken'];
+    if (refreshToken === null) res.redirect('./../login');
+    verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
+        if (error) return res.redirect('./../login');
+        req.udata = udata;
+        const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
+        res.cookie('token', newWebToken, { maxAge: 150000, httpOnly: true });
+        res.redirect('./../panel');
+    });
 });
 
 app.get('/register', (req, res)=>{
+    if(req.cookies['refreshToken'] != null) res.redirect('/panel');
     res.render('register.ejs');
 });
 
@@ -79,7 +79,6 @@ app.post('/api/register', (req, res)=>{
 
 app.get('/panel', authUser, (req, res)=>{
     res.render('panel.ejs');
-    checkToken(req, res);
 });
 
 app.get('/api/users', async (req, res)=>{
@@ -92,10 +91,23 @@ app.get('/api/users/:id', async (req, res)=>{
     else res.json(get);
 });
 
-app.delete('/logout', async (req, res)=>{
-    const refreshToken = req.body.refresh;
-    if (removeToken(refreshToken)) res.redirect('login');
-    else res.redirect('error');
+app.get('/logout', async (req, res)=>{
+    await logUser({
+        login: req.cookies['user'],
+        data: `User ${req.cookies['user']} logged out.`,
+    });
+    res.cookie('token', '', { maxAge: -90000, httpOnly: true });
+    res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
+    res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+    res.redirect('login');
+});
+
+app.get('/panel', authUser, (req, res)=>{
+    res.redirect('./login');
+});
+
+app.get('/', authUser, (req, res)=>{
+    res.redirect('./login');
 });
 
 app.get('/error', (req, res)=>{
