@@ -21,4 +21,4 @@ async function sendQuery(query){
     catch (error) { console.log(`[ DATABASE ] There was an error with the query: \n  ${error}`) }
 }
 
-module.exports = { sendQuery }
+module.exports = sendQuery

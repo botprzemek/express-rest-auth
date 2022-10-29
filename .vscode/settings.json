@@ -1,0 +1,13 @@
+{
+    "files.exclude": {
+        ".env*": true,
+        ".git*": true,
+        ".vscode": true,
+        "*rest": true,
+        "Dockerfile": true,
+        "LICENSE": true,
+        "node_*": true,
+        "pack*": true,
+        "README*": true
+    }
+}
