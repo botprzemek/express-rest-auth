@@ -1,4 +1,4 @@
-FROM node:18.12-slim
+FROM node:19.0-slim
 WORKDIR /express-rest-auth
 COPY package.json ./../express-rest-auth
 RUN npm install
