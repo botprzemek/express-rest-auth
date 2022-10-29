@@ -31,8 +31,10 @@ jobs:
 
     - name: Build the Docker image
       working-directory: ./
-    - run: docker build . -t botprzemek/express-rest-auth:latest
+      run: |
+        docker build . -t botprzemek/express-rest-auth:latest
         
     - name: Push the Docker image
       working-directory: ./
-    - run: docker push botprzemek/express-rest-auth:latest
+      run: |
+        docker push botprzemek/express-rest-auth:latest
