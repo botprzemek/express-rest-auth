@@ -10,11 +10,18 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+    - name: Login to private registry
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
     - name: Build the Docker image
       working-directory: ./
       run: |
-        docker build . -t botprzemek/express-rest-auth
+        docker build . -t botprzemek/express-rest-auth:latest
+        
     - name: Push the Docker image
       working-directory: ./
       run: |
-        docker push botprzemek/express-rest-auth
+        docker push botprzemek/express-rest-auth:latest
