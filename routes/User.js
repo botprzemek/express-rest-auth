@@ -5,11 +5,11 @@ const express = require('express'),
       { apiLogin, apiRegister, apiToken, apiUsers, apiUserId } = require('../controllers/Api'),
       { logoutUser } = require('../controllers/User');
 
-router.use((req, res, next) => { next() })
+router.use((req, res, next) => { next() });
 router.get('/', (req, res)=>{ res.redirect('panel') });
 
-router.get('/panel', authUser, (req, res)=>{ res.render('Panel.ejs', { token: req.cookies.token }) });
-router.get('/welcome', (req, res)=>{ res.render('Welcome.ejs') });
+router.get('/panel', authUser, (req, res)=>{ res.render('Panel.ejs', { token: req.cookies.token })});
+router.get('/welcome', (req, res)=>{ res.render('Welcome.ejs')} );
 
 router.get('/logout', logoutUser);
 

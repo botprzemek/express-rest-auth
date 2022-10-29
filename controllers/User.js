@@ -5,9 +5,9 @@ async function logoutUser(req, res) {
         login: req.cookies['user'],
         data: `User ${req.cookies['user']} logged out.`,
     });
-    res.cookie('token', '', { maxAge: -90000, httpOnly: true });
-    res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
-    res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+    res.cookie('token', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+    res.cookie('refreshToken', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+    res.cookie('user', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
     res.redirect('./welcome');
 };
 

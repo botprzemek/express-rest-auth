@@ -29,15 +29,15 @@ function authUser(req, res, next){
     if (refreshToken == null && token == null) return res.redirect('./../../welcome');
     if (refreshToken != null && token == null) return res.redirect('./api/token');
     if (typeof token !== 'string' || typeof refreshToken !== 'string' || typeof req.cookies['user'] !== 'string'){
-        res.cookie('token', '', { maxAge: -90000, httpOnly: true });
-        res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
-        res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+        res.cookie('token', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+        res.cookie('refreshToken', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+        res.cookie('user', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
         return res.redirect('./../../welcome');
     }
     if (JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).result !== req.cookies['user']){
-        res.cookie('token', '', { maxAge: -90000, httpOnly: true });
-        res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
-        res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+        res.cookie('token', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+        res.cookie('refreshToken', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+        res.cookie('user', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
         return res.redirect('./../../welcome');
     }
     verify(token, process.env.WEB_TOKEN, async (error, udata) =>{
@@ -46,9 +46,9 @@ function authUser(req, res, next){
                 login: req.cookies['user'],
                 data: `User ${req.cookies['user']} tried to change cookies.`,
             });
-            res.cookie('token', '', { maxAge: -90000, httpOnly: true });
-            res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
-            res.cookie('user', '', { maxAge: -90000, httpOnly: true });
+            res.cookie('token', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+            res.cookie('refreshToken', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
+            res.cookie('user', '', { maxAge: -90000, secure: true, sameSite: 'lax', httpOnly: true });
             return res.redirect('./../../welcome');
         }
         req.udata = udata;

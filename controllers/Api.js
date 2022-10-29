@@ -14,9 +14,9 @@ async function apiLogin(req, res){
             });
             const webToken = sign({ result : req.body.login }, process.env.WEB_TOKEN, { expiresIn: '15m' });
             const refreshToken = sign({ result : req.body.login }, process.env.REFRESH_TOKEN, { expiresIn: '7d' });
-            res.cookie('token', webToken, { maxAge: 150000, httpOnly: true });
-            res.cookie('refreshToken', refreshToken, { maxAge: age, httpOnly: true });
-            res.cookie('user', req.body.login, { maxAge: age, httpOnly: true });
+            res.cookie('token', webToken, { maxAge: 150000, secure: true, sameSite: 'lax', httpOnly: true });
+            res.cookie('refreshToken', refreshToken, { maxAge: age, secure: true, sameSite: 'lax', httpOnly: true });
+            res.cookie('user', req.body.login, { maxAge: age, secure: true, sameSite: 'lax', httpOnly: true });
             res.redirect('./../panel');
         }
         else {
@@ -55,7 +55,7 @@ async function apiToken(req, res){
         if (error) return res.redirect('./../welcome');
         req.udata = udata;
         const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
-        res.cookie('token', newWebToken, { maxAge: 150000, httpOnly: true });
+        res.cookie('token', newWebToken, { maxAge: 150000, secure: true, sameSite: 'lax', httpOnly: true });
         res.redirect('./../panel');
     });
 }
