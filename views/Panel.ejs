@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Logged successfully!</h1>
-    <p>Thank you for joining us.</p>
+    <p><%= JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).result %>! Thanks you for joining us.</p>
     <a href="./logout">Logout</a>
 </body>
 </html>
