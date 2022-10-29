@@ -8,8 +8,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Build with Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    
     - name: Login to private registry
       uses: docker/login-action@v1
       with:
@@ -18,10 +31,8 @@ jobs:
 
     - name: Build the Docker image
       working-directory: ./
-      run: |
-        docker build . -t botprzemek/express-rest-auth:latest
+    - run: docker build . -t botprzemek/express-rest-auth:latest
         
     - name: Push the Docker image
       working-directory: ./
-      run: |
-        docker push botprzemek/express-rest-auth:latest
+    - run: docker push botprzemek/express-rest-auth:latest
