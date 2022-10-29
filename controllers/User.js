@@ -8,7 +8,7 @@ async function logoutUser(req, res) {
     res.cookie('token', '', { maxAge: -90000, httpOnly: true });
     res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
     res.cookie('user', '', { maxAge: -90000, httpOnly: true });
-    res.redirect('login');
+    res.redirect('./welcome');
 };
 
 module.exports = {

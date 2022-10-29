@@ -24,7 +24,7 @@ async function apiLogin(req, res){
                 login: user.login,
                 data: `User ${user.login} login failed.`,
             });
-            res.redirect('./../login');
+            res.redirect('./../welcome');
         }
     }
     catch (error) {
@@ -40,19 +40,19 @@ async function apiRegister(req, res){
             password:req.body.password,
         };
         
-        if (await addUser(user) == true) res.redirect('../login');
-        else res.redirect('../register');
+        if (await addUser(user) == true) res.redirect('./../welcome');
+        else res.redirect('./../welcome');
     }
     catch {
-       res.redirect('../register');
+       res.redirect('./../welcome');
     }
 }
 
 async function apiToken(req, res){
     const refreshToken = req.cookies['refreshToken'];
-    if (refreshToken === null) res.redirect('./../login');
+    if (refreshToken === null) res.redirect('./../welcome');
     verify(refreshToken, process.env.REFRESH_TOKEN, (error, udata) =>{
-        if (error) return res.redirect('./../login');
+        if (error) return res.redirect('./../welcome');
         req.udata = udata;
         const newWebToken = sign({ result : req.cookies['user'] }, process.env.WEB_TOKEN, { expiresIn: '15m' });
         res.cookie('token', newWebToken, { maxAge: 150000, httpOnly: true });

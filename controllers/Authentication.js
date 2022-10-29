@@ -26,19 +26,19 @@ async function verifyUser(user){
 function authUser(req, res, next){
     const token = req.cookies['token'],
           refreshToken = req.cookies['refreshToken'];
-    if (refreshToken == null && token == null) return res.redirect('./../../login');
+    if (refreshToken == null && token == null) return res.redirect('./../../welcome');
     if (refreshToken != null && token == null) return res.redirect('./api/token');
     if (typeof token !== 'string' || typeof refreshToken !== 'string' || typeof req.cookies['user'] !== 'string'){
         res.cookie('token', '', { maxAge: -90000, httpOnly: true });
         res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
         res.cookie('user', '', { maxAge: -90000, httpOnly: true });
-        return res.redirect('./../../login');
+        return res.redirect('./../../welcome');
     }
     if (JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).result !== req.cookies['user']){
         res.cookie('token', '', { maxAge: -90000, httpOnly: true });
         res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
         res.cookie('user', '', { maxAge: -90000, httpOnly: true });
-        return res.redirect('./../../login');
+        return res.redirect('./../../welcome');
     }
     verify(token, process.env.WEB_TOKEN, async (error, udata) =>{
         if (error) {
@@ -49,7 +49,7 @@ function authUser(req, res, next){
             res.cookie('token', '', { maxAge: -90000, httpOnly: true });
             res.cookie('refreshToken', '', { maxAge: -90000, httpOnly: true });
             res.cookie('user', '', { maxAge: -90000, httpOnly: true });
-            return res.redirect('./../../login');
+            return res.redirect('./../../welcome');
         }
         req.udata = udata;
         next();
