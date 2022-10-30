@@ -6,5 +6,7 @@ Dependencies used in project:
 - Express.JS :heavy_check_mark:,
 - JSONWebTokens :heavy_check_mark: stored in cookies,
 - MYSQL2 :heavy_check_mark: (Moving to Cassandra),
+- Mail confirmation for new users ❌,
+- Svelte frontend ❌,
 
 :trollface:
