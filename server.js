@@ -16,8 +16,9 @@ const express = require('express'),
       port = process.env.NODE_PORT;
 
 app.disable('x-powered-by');
+      
+app.set('view-engine', 'ejs');
 
-app.use(express.static('dist'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
