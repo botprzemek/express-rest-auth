@@ -9,7 +9,7 @@ router.use((req, res, next) => { next() });
 router.get('/', (req, res)=>{ res.redirect('panel') });
 
 router.get('/panel', authUser, (req, res)=>{ res.render('Panel.ejs', { token: req.cookies.token })});
-router.get('/welcome', (req, res)=>{ res.render('Welcome.ejs')} );
+router.get('/welcome', authUser, (req, res)=>{ res.render('Welcome.ejs') });
 
 router.get('/logout', logoutUser);
 
